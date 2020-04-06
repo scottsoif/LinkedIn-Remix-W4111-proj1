@@ -21,7 +21,7 @@ app = Flask(__name__, template_folder=tmpl_dir)
 #
 # The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
 #
-# XXX: The URI should be in the format of: 
+# XXX: The URI should be in the format of:
 #
 #     postgresql://USER:PASSWORD@35.243.220.243/proj1part2
 #
@@ -41,17 +41,19 @@ engine = create_engine(DATABASEURI)
 # Example of running queries in your database
 # Note that this will probably not work if you already have a table named 'test' in your database, containing meaningful data. This is only an example showing you how to run queries in your database using SQLAlchemy.
 #
+'''
 engine.execute("""CREATE TABLE IF NOT EXISTS test (
   id serial,
   name text
 );""")
-engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
+'''
+# engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
 
 
 @app.before_request
 def before_request():
   """
-  This function is run at the beginning of every web request 
+  This function is run at the beginning of every web request
   (every time you enter an address in the web browser).
   We use it to setup a database connection that can be used throughout the request.
 
@@ -85,7 +87,7 @@ def teardown_request(exception):
 #       @app.route("/foobar/", methods=["POST", "GET"])
 #
 # PROTIP: (the trailing / in the path is important)
-# 
+#
 # see for routing: http://flask.pocoo.org/docs/0.10/quickstart/#routing
 # see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
 #
@@ -108,10 +110,11 @@ def index():
   #
   # example of a database query
   #
-  cursor = g.conn.execute("SELECT name FROM test")
+  cursor = g.conn.execute("SELECT id,li_user.name FROM person, li_user WHERE person.person_id=li_user.id")
   names = []
   for result in cursor:
-    names.append(result['name'])  # can also be accessed using result[0]
+  	names.append(result)
+    #names.append(result['name'])  # can also be accessed using result[0]
   cursor.close()
 
   #
@@ -123,14 +126,14 @@ def index():
   # You can see an example template in templates/index.html
   #
   # context are the variables that are passed to the template.
-  # for example, "data" key in the context variable defined below will be 
+  # for example, "data" key in the context variable defined below will be
   # accessible as a variable in index.html:
   #
   #     # will print: [u'grace hopper', u'alan turing', u'ada lovelace']
   #     <div>{{data}}</div>
-  #     
+  #
   #     # creates a <div> tag for each element in data
-  #     # will print: 
+  #     # will print:
   #     #
   #     #   <div>grace hopper</div>
   #     #   <div>alan turing</div>
@@ -151,7 +154,7 @@ def index():
 
 #
 # This is an example of a different path.  You can see it at:
-# 
+#
 #     localhost:8111/another
 #
 # Notice that the function name is another() rather than index()
@@ -163,11 +166,45 @@ def another():
 
 
 # Example of adding new data to the database
-@app.route('/add', methods=['POST'])
-def add():
-  name = request.form['name']
-  g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
-  return redirect('/')
+@app.route('/getDegConnects', methods=['POST'])
+def getDegConnects():
+    print(f"\n\n{request.form}")
+    user_id = request.form['user_id']
+    deg = request.form['degree']
+
+    if deg=="first":
+        con2 = "(SELECT c2_id FROM connection WHERE c1_id={}) t".format(user_id)
+        con2names = "Select name From li_user, {} Where li_user.id=t.c2_id".format(con2)
+        cursor = g.conn.execute(con2names)
+        for result in cursor:
+            print(result[0])
+        cursor.close()
+
+    elif deg=="second":
+        cursor = g.conn.execute(
+        '''
+        Select x.name target, y.name mutual, z.name as second
+        from li_user x, li_user y, li_user z
+        where (x.id,y.id,z.id) =
+        (select p.c1_id target, p.c2_id mutual, s.c2_id secondDegree
+        from connection p join connection s on p.c2_id=s.c1_id
+        where p.c1_id != s.c2_id and p.c1_id={} and s.c2_id not in
+        (select c2_id from connection where c1_id={}))
+        '''.format(user_id,user_id))
+        for result in cursor:
+            print(result)
+            #names.append(result['name'])  # can also be accessed using result[0]
+        cursor.close()
+    '''
+    else if deg=="third":
+        cursor = g.conn.execute("SELECT id,li_user.name FROM person, li_user WHERE person.person_id=li_user.id")
+        for result in cursor:
+            names.append(result)
+            #names.append(result['name'])  # can also be accessed using result[0]
+        cursor.close()
+    '''
+    print(f"User: {user_id}\nDegrees you want:  {deg}\n\n")
+    return redirect('/')
 
 
 @app.route('/login')
