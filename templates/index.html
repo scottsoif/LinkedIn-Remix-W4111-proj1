@@ -9,11 +9,31 @@
   padding-bottom: 50px;
   padding-left: 100px;
     }
+
+    .button {
+  background-color: #03a5fc;
+  border: none;
+  color: white;
+  padding: 10px 22px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 20px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
   </style>
 
 
 <body>
 <h1>Welcome To Linkedin</h1>
+<!-- Button to clear screen contents -->
+<div align="right">
+<form method="POST" action="/clearResults">
+<button name="subject" type="submit" class="button">Clear Results</button>
+</form>
+</div>
+
 <h3>Get Connections of Person by Degree</h3>
 <form method="POST" action="/getDegConnects">
   <select name="user_id">
@@ -28,8 +48,13 @@
   <label for="second">2nd Degree Connection</label><br>
   <input type="radio" id="third" name="degree" value="third">
   <label for="third">3rd Degree Connection</label>
-  <input type="submit" value="Submit">
+  <input type="submit" value="Submit" class="button">
 </form>
+  <div>
+    {% for n in rData %}
+    <div>{{n}}</div>
+    {% endfor %}
+  </div>
 
 <br><br>
 <h3>Find Alumni from a School</h3>
@@ -44,17 +69,27 @@
 
 
 <br><br>
-  <h1>Some famous Computer Scientists</h1>
-  <div>{{data}}</div>
-
-  <div>
-    {% for n in data %}
-    <div>{{n}}</div>
+<h3>Find Alumni from a School</h3>
+<form method="POST" action="/getAlumni">
+  <select name="school_id">
+    {% for name in data2 %}
+    <option value={{name[0]}}>{{name[1]}}</option>
     {% endfor %}
-  </div>
-<p><a href="another">Go to the other page</a></p>
+  </select>
+  <input type="submit" value="Submit">
+</form>
 
 
+<br><br>
+<h3>Jobs Search</h3>
+<form method="POST" action="/getJobs">
+  <select name="job_id">
+    {% for name in data3 %}
+    <option value={{name[0]}}>{{name[1]}}</option>
+    {% endfor %}
+  </select>
+  <input type="submit" value="Submit">
+</form>
 
 
 
