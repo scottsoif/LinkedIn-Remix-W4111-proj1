@@ -21,6 +21,7 @@ connections = []
 alumni = []
 jobs = []
 avgSalaries = []
+posts = []
 
 
 DATABASEURI = "postgresql://sas2412:5419@35.231.103.173/proj1part2"
@@ -95,11 +96,17 @@ def index():
   	companies.append(result)
   cursor.close()
 
+  cursor = g.conn.execute("SELECT id, name FROM li_user")
+  users = []
+  for result in cursor:
+  	users.append(result)
+  cursor.close()
 
   context = dict(data = names, rData = connections,
                 data2=schools, rData2 = alumni,
-                data3 = companies, rData3 = jobs, 
-                rData4 = avgSalaries)
+                data3 = companies, rData3 = jobs,
+                rData4 = avgSalaries,
+                data5 = users, rData5 = posts)
 
   return render_template("index.html", **context)
 
@@ -196,7 +203,16 @@ def getJobs():
     jobs.clear()
     print(f"\n\n{request.form}")
     job_id = request.form['job_id']
-
+    cursor = g.conn.execute(
+    '''
+    Select l.name, j.level, j.description
+    From job j, li_user l
+    Where j.organization_id = l.id and j.organization_id = {}
+    '''.format(job_id)
+    )
+    for result in cursor:
+        print(result)
+        jobs.append(result)
     print(f"Job id: {job_id}\n\n")
     return redirect('/')
 
@@ -216,7 +232,7 @@ def getSalaries():
     for result in cursor:
       print(result[1])
       avgSalaries.append("${:,.2f}".format(result[1]))
-      
+
     cursor.close()
 
 
@@ -224,6 +240,24 @@ def getSalaries():
     print(f"Salary id: {org_id}\n\n")
     return redirect('/')
 
+@app.route('/getPosts', methods=['POST'])
+def getPosts():
+    posts.clear()
+    print(f"\n\n{request.form}")
+    id = request.form['user_id']
+    cursor = g.conn.execute(
+    '''
+    Select l1.name, p.content, l2.name, c.content
+    From post p, li_user l1, li_user l2, comment c
+    Where p.author_id = l1.id and l1.id = {} and p.post_id = c.post_id and c.author_id = l2.id
+    '''.format(id)
+    )
+    posts.append(("Author","Post", "Commentor" , "Content"))
+    for result in cursor:
+        print(result)
+        posts.append(result)
+    print(f"Post id: {id}\n\n")
+    return redirect('/')
 
 
 @app.route('/login')
