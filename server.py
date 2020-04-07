@@ -42,7 +42,13 @@ engine.execute("""CREATE TABLE IF NOT EXISTS test (
 
 @app.before_request
 def before_request():
+  """
+  This function is run at the beginning of every web request
+  (every time you enter an address in the web browser).
+  We use it to setup a database connection that can be used throughout the request.
 
+  The variable g is globally accessible.
+  """
   try:
     g.conn = engine.connect()
   except:
@@ -164,23 +170,19 @@ def getAlumni():
     alumni.clear()
     print(f"\n\n{request.form}")
     school_id = request.form['school_id']
-
-    print(f"School id: {school_id}\n\n")
-    return redirect('/')
-
-@app.route('/getAlumni', methods=['POST'])
-def getAlumni():
-    print(f"\n\n{request.form}")
-    school_id = request.form['school_id']
-    cursor = g.conn.execute('''
+    cursor = g.conn.execute(
+    '''
     Select name
     From alumni a, li_user l
     Where a.person_id = l.id and a.school_id = {}
-    '''.format(school_id))
+    '''.format(school_id)
+    )
     for result in cursor:
         print(result[0])
+        alumni.append(result[0])
     print(f"School id: {school_id}\n\n")
     return redirect('/')
+
 
 # data 3
 @app.route('/getJobs', methods=['POST'])

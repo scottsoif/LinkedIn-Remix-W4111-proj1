@@ -56,16 +56,6 @@
     {% endfor %}
   </div>
 
-<br><br>
-<h3>Find Alumni from a School</h3>
-<form method="POST" action="/getAlumni">
-  <select name="school_id">
-    {% for name in data2 %}
-    <option value={{name[0]}}>{{name[1]}}</option>
-    {% endfor %}
-  </select>
-  <input type="submit" value="Submit">
-</form>
 
 
 <br><br>
@@ -79,6 +69,11 @@
   <input type="submit" value="Submit">
 </form>
 
+<div>
+    {% for n in rData2 %}
+    <div>{{n}}</div>
+    {% endfor %}
+  </div>
 
 <br><br>
 <h3>Jobs Search</h3>
