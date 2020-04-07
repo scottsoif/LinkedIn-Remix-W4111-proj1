@@ -22,6 +22,22 @@
   margin: 4px 2px;
   cursor: pointer;
 }
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
   </style>
 
 
@@ -81,11 +97,49 @@
   <select name="job_id">
     {% for name in data3 %}
     <option value={{name[0]}}>{{name[1]}}</option>
+    </form>
     {% endfor %}
   </select>
   <input type="submit" value="Submit">
 </form>
+<div>
+    {% for n in rData3 %}
+    <div>{{n}}</div>
+<!-- <div align="right">
+<form method="POST" action="/apply">
+<button name="subject" type="submit">Apply</button>
+</form>
+<div> -->
+    {% endfor %}
+  </div>
 
+<h3>Get Posts Made by User (and comments on those posts hehe)</h3>
+<form method="POST" action="/getPosts">
+  <select name="user_id">
+    {% for name in data5 %}
+    <option value={{name[0]}}>{{name[1]}}</option>
+    {% endfor %}
+  </select>
+  <input type="submit" value="Submit">
+</form>
+<table>
+  <div>
+    {% for n in rData5 %}
+  <tr>
+    <td>{{n[0]}}</td>
+    <td>{{n[1]}}</td>
+    <td>{{n[2]}}</td>
+    <td>{{n[3]}}</td>
+  </tr>
+      {% endfor %}
+  </div>
+</table>
+
+  <div>
+    {% for n in rData5 %}
+    <div>{{n}}</div>
+    {% endfor %}
+  </div>
 
 
 </body>
