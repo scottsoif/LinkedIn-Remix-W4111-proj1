@@ -17,48 +17,13 @@ from flask import Flask, request, render_template, g, redirect, Response
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
-
-#
-# The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
-#
-# XXX: The URI should be in the format of:
-#
-#     postgresql://USER:PASSWORD@35.243.220.243/proj1part2
-#
-# For example, if you had username gravano and password foobar, then the following line would be:
-#
-#     DATABASEURI = "postgresql://gravano:foobar@35.243.220.243/proj1part2"
-#
 DATABASEURI = "postgresql://sas2412:5419@35.231.103.173/proj1part2"
 
-
-#
-# This line creates a database engine that knows how to connect to the URI above.
-#
 engine = create_engine(DATABASEURI)
-
-#
-# Example of running queries in your database
-# Note that this will probably not work if you already have a table named 'test' in your database, containing meaningful data. This is only an example showing you how to run queries in your database using SQLAlchemy.
-#
-'''
-engine.execute("""CREATE TABLE IF NOT EXISTS test (
-  id serial,
-  name text
-);""")
-'''
-# engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
-
 
 @app.before_request
 def before_request():
-  """
-  This function is run at the beginning of every web request
-  (every time you enter an address in the web browser).
-  We use it to setup a database connection that can be used throughout the request.
 
-  The variable g is globally accessible.
-  """
   try:
     g.conn = engine.connect()
   except:
@@ -116,13 +81,19 @@ def index():
   	names.append(result)
   cursor.close()
 
+  cursor = g.conn.execute("select id, name from school, li_user where school_id=id")
+  schools = []
+  for result in cursor:
+      schools.append(result)
+  cursor.close()
+
   cursor = g.conn.execute("SELECT id,li_user.name FROM organization, li_user WHERE organization.organization_id=li_user.id")
   companies = []
   for result in cursor:
   	companies.append(result)
   cursor.close()
 
-  context = dict(data = names, data3 = companies)
+  context = dict(data = names, data2 = schools, data3 = companies)
 
   return render_template("index.html", **context)
 
@@ -180,6 +151,19 @@ def getDegConnects():
     print(f"User: {user_id}\nDegrees you want:  {deg}\n\n")
     return redirect('/')
 
+@app.route('/getAlumni', methods=['POST'])
+def getAlumni():
+    print(f"\n\n{request.form}")
+    school_id = request.form['school_id']
+    cursor = g.conn.execute('''
+    Select name
+    From alumni a, li_user l
+    Where a.person_id = l.id and a.school_id = {}
+    '''.format(school_id))
+    for result in cursor:
+        print(result[0])
+    print(f"School id: {school_id}\n\n")
+    return redirect('/')
 
 @app.route('/login')
 def login():
