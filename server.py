@@ -20,6 +20,8 @@ app = Flask(__name__, template_folder=tmpl_dir)
 connections = []
 alumni = []
 jobs = []
+avgSalaries = []
+
 
 DATABASEURI = "postgresql://sas2412:5419@35.231.103.173/proj1part2"
 
@@ -96,7 +98,8 @@ def index():
 
   context = dict(data = names, rData = connections,
                 data2=schools, rData2 = alumni,
-                data3 = companies, rData3 = jobs)
+                data3 = companies, rData3 = jobs, 
+                rData4 = avgSalaries)
 
   return render_template("index.html", **context)
 
@@ -105,6 +108,8 @@ def index():
 @app.route('/clearResults', methods=['POST'])
 def clearResults():
   connections.clear()
+  alumni.clear()
+  jobs.clear()
   return redirect("/")
 
 @app.route('/goHome', methods=['POST'])
@@ -181,6 +186,7 @@ def getAlumni():
         print(result[0])
         alumni.append(result[0])
     print(f"School id: {school_id}\n\n")
+    cursor.close()
     return redirect('/')
 
 
@@ -192,6 +198,30 @@ def getJobs():
     job_id = request.form['job_id']
 
     print(f"Job id: {job_id}\n\n")
+    return redirect('/')
+
+
+@app.route('/getSalaries', methods=['POST'])
+def getSalaries():
+    avgSalaries.clear()
+    print(f"\n\n{request.form}")
+    org_id = request.form['org_id']
+    cursor = g.conn.execute(
+    '''
+    select l.name, avg(salary)
+    From employee e, li_user l
+    Where e.organization_id = l.id and e.organization_id = {}
+    Group by l.name '''.format(org_id) )
+
+    for result in cursor:
+      print(result[1])
+      avgSalaries.append("${:,.2f}".format(result[1]))
+      
+    cursor.close()
+
+
+
+    print(f"Salary id: {org_id}\n\n")
     return redirect('/')
 
 

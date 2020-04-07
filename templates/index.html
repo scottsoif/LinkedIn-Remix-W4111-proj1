@@ -75,6 +75,7 @@
     {% endfor %}
   </div>
 
+
 <br><br>
 <h3>Jobs Search</h3>
 <form method="POST" action="/getJobs">
@@ -85,6 +86,23 @@
   </select>
   <input type="submit" value="Submit">
 </form>
+
+
+<br><br>
+<h3>Avg Company Salary</h3>
+<form method="POST" action="/getSalaries">
+  <select name="org_id">
+    {% for name in data3 %}
+    <option value={{name[0]}}>{{name[1]}}</option>
+    {% endfor %}
+  </select>
+  <input type="submit" value="Submit">
+</form>
+<div>
+    {% for n in rData4 %}
+    <div>{{n}}</div>
+    {% endfor %}
+  </div>
 
 
 
