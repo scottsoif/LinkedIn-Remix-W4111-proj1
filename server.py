@@ -22,7 +22,7 @@ alumni = []
 jobs = []
 avgSalaries = []
 posts = []
-
+nicePeople = []
 
 DATABASEURI = "postgresql://sas2412:5419@35.231.103.173/proj1part2"
 
@@ -99,14 +99,21 @@ def index():
   cursor = g.conn.execute("SELECT id, name FROM li_user")
   users = []
   for result in cursor:
-  	users.append(result)
+      users.append(result)
+  cursor.close()
+
+  cursor = g.conn.execute("SELECT id,li_user.name FROM volunteer, li_user WHERE volunteer.organization_id=li_user.id group by id, name")
+  volunteer = []
+  for result in cursor:
+      volunteer.append(result)
   cursor.close()
 
   context = dict(data = names, rData = connections,
                 data2=schools, rData2 = alumni,
                 data3 = companies, rData3 = jobs,
                 rData4 = avgSalaries,
-                data5 = users, rData5 = posts)
+                data5 = users, rData5 = posts,
+                data6 = volunteer, rData6 = nicePeople)
 
   return render_template("index.html", **context)
 
@@ -234,9 +241,6 @@ def getSalaries():
       avgSalaries.append("${:,.2f}".format(result[1]))
 
     cursor.close()
-
-
-
     print(f"Salary id: {org_id}\n\n")
     return redirect('/')
 
@@ -257,6 +261,25 @@ def getPosts():
         print(result)
         posts.append(result)
     print(f"Post id: {id}\n\n")
+    return redirect('/')
+
+@app.route('/getVols', methods=['POST'])
+def getVols():
+    nicePeople.clear()
+    print(f"\n\n{request.form}")
+    organization_id = request.form['organization_id']
+    cursor = g.conn.execute(
+    '''
+    Select name
+    From volunteer v, li_user l
+    Where v.volunteer_id = l.id and v.organization_id = {}
+    '''.format(organization_id)
+    )
+    for result in cursor:
+        print(result[0])
+        nicePeople.append(result[0])
+    print(f"School id: {organization_id}\n\n")
+    cursor.close()
     return redirect('/')
 
 

@@ -158,6 +158,22 @@ tr:nth-child(even) {
     {% endfor %}
   </div>
 
+<br><br>
+<h3>Who volunteers for that organization?</h3>
+<form method="POST" action="/getVols">
+  <select name="organization_id">
+    {% for name in data6 %}
+    <option value={{name[0]}}>{{name[1]}}</option>
+    {% endfor %}
+  </select>
+  <input type="submit" value="Submit">
+</form>
+
+<div>
+    {% for n in rData6 %}
+    <div>{{n}}</div>
+    {% endfor %}
+  </div>
 
 
 </body>
