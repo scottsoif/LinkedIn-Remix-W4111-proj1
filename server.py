@@ -17,27 +17,17 @@ from flask import Flask, request, render_template, g, redirect, Response
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
+connections = []
+alumni = []
+jobs = []
 
-#
-# The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
-#
-# XXX: The URI should be in the format of:
-#
-#     postgresql://USER:PASSWORD@35.243.220.243/proj1part2
-#
-# For example, if you had username gravano and password foobar, then the following line would be:
-#
-#     DATABASEURI = "postgresql://gravano:foobar@35.243.220.243/proj1part2"
-#
 DATABASEURI = "postgresql://sas2412:5419@35.231.103.173/proj1part2"
 
 
-#
 # This line creates a database engine that knows how to connect to the URI above.
-#
 engine = create_engine(DATABASEURI)
 
-#
+
 # Example of running queries in your database
 # Note that this will probably not work if you already have a table named 'test' in your database, containing meaningful data. This is only an example showing you how to run queries in your database using SQLAlchemy.
 #
@@ -78,42 +68,23 @@ def teardown_request(exception):
     pass
 
 
-#
-# @app.route is a decorator around index() that means:
-#   run index() whenever the user tries to access the "/" path using a GET request
-#
-# If you wanted the user to go to, for example, localhost:8111/foobar/ with POST or GET then you could use:
-#
-#       @app.route("/foobar/", methods=["POST", "GET"])
-#
-# PROTIP: (the trailing / in the path is important)
-#
-# see for routing: http://flask.pocoo.org/docs/0.10/quickstart/#routing
-# see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
-#
+#  
 @app.route('/')
 def index():
-  """
-  request is a special object that Flask provides to access web request information:
 
-  request.method:   "GET" or "POST"
-  request.form:     if the browser submitted a form, this contains the data in the form
-  request.args:     dictionary of URL arguments, e.g., {a:1, b:2} for http://localhost?a=1&b=2
-
-  See its API: http://flask.pocoo.org/docs/0.10/api/#incoming-request-data
-  """
-
-  # DEBUG: this is debugging code to see what request looks like
   print(request.args)
 
-
-  #
-  # example of a database query
-  #
   cursor = g.conn.execute("SELECT id,li_user.name FROM person, li_user WHERE person.person_id=li_user.id")
   names = []
   for result in cursor:
   	names.append(result)
+  cursor.close()
+
+  cursor = g.conn.execute("select id, name from school, li_user where school_id=id")
+  schools = []
+  for result in cursor:
+    schools.append(result)
+    #names.append(result['name'])  # can also be accessed using result[0]
   cursor.close()
 
   cursor = g.conn.execute("SELECT id,li_user.name FROM organization, li_user WHERE organization.organization_id=li_user.id")
@@ -121,30 +92,35 @@ def index():
   for result in cursor:
   	companies.append(result)
   cursor.close()
-
-  context = dict(data = names, data3 = companies)
+  
+  
+  context = dict(data = names, rData = connections, 
+                data2=schools, rData2 = alumni,
+                data3 = companies, rData3 = jobs)
 
   return render_template("index.html", **context)
 
-#
-# This is an example of a different path.  You can see it at:
-#
-#     localhost:8111/another
-#
-# Notice that the function name is another() rather than index()
-# The functions for each app.route need to have different names
-#
-@app.route('/another')
+
+
+@app.route('/clearResults', methods=['POST'])
+def clearResults():
+  connections.clear()
+  return redirect("/")
+
+@app.route('/goHome', methods=['POST'])
 def another():
-  return render_template("another.html")
+  return redirect("/")
 
 
-# Example of adding new data to the database
+# data 
 @app.route('/getDegConnects', methods=['POST'])
 def getDegConnects():
     print(f"\n\n{request.form}")
+    # gets user and def from post request
     user_id = request.form['user_id']
     deg = request.form['degree']
+
+    connections.clear() # empties list so no double values
 
     if deg=="first":
         con2 = "(SELECT c2_id FROM connection WHERE c1_id={}) t".format(user_id)
@@ -152,6 +128,7 @@ def getDegConnects():
         cursor = g.conn.execute(con2names)
         for result in cursor:
             print(result[0])
+            connections.append(result[0])
         cursor.close()
 
     elif deg=="second":
@@ -165,8 +142,11 @@ def getDegConnects():
         where p.c1_id != s.c2_id and p.c1_id={} and s.c2_id not in
         (select c2_id from connection where c1_id={}))
         '''.format(user_id,user_id))
+
         for result in cursor:
-            print(result)
+            for i in result[1:]:  # inner loop to remove tuple
+              print(i)
+              connections.append(i)
             #names.append(result['name'])  # can also be accessed using result[0]
         cursor.close()
     '''
@@ -177,8 +157,34 @@ def getDegConnects():
             #names.append(result['name'])  # can also be accessed using result[0]
         cursor.close()
     '''
-    print(f"User: {user_id}\nDegrees you want:  {deg}\n\n")
+    print(f"\nUser: {user_id}\nDegrees you want:  {deg}\n\n")
+    if len(connections)==0: connections.append("No results found :{")
+    # context = dict(rData = connections)
+
+    # return render_template("result.html", **context)
     return redirect('/')
+
+# data 2
+@app.route('/getAlumni', methods=['POST'])
+def getAlumni():
+    alumni.clear()
+    print(f"\n\n{request.form}")
+    school_id = request.form['school_id']
+
+    print(f"School id: {school_id}\n\n")
+    return redirect('/')
+
+
+# data 3
+@app.route('/getJobs', methods=['POST'])
+def getJobs():
+    jobs.clear()
+    print(f"\n\n{request.form}")
+    job_id = request.form['job_id']
+
+    print(f"Job id: {job_id}\n\n")
+    return redirect('/')
+
 
 
 @app.route('/login')
