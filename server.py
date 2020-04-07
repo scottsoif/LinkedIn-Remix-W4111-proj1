@@ -21,6 +21,7 @@ connections = []
 alumni = []
 jobs = []
 avgSalaries = []
+posts = []
 
 
 DATABASEURI = "postgresql://sas2412:5419@35.231.103.173/proj1part2"
@@ -95,11 +96,17 @@ def index():
   	companies.append(result)
   cursor.close()
 
+  cursor = g.conn.execute("SELECT id, name FROM li_user")
+  users = []
+  for result in cursor:
+  	users.append(result)
+  cursor.close()
 
   context = dict(data = names, rData = connections,
                 data2=schools, rData2 = alumni,
-                data3 = companies, rData3 = jobs, 
-                rData4 = avgSalaries)
+                data3 = companies, rData3 = jobs,
+                rData4 = avgSalaries,
+                data5 = users, rData5 = posts)
 
   return render_template("index.html", **context)
 
@@ -141,7 +148,7 @@ def getDegConnects():
         '''
         Select x.name target, y.name mutual, z.name as second
         from li_user x, li_user y, li_user z
-        where (x.id,y.id,z.id) =
+        where (x.id,y.id,z.id) in
         (select p.c1_id target, p.c2_id mutual, s.c2_id secondDegree
         from connection p join connection s on p.c2_id=s.c1_id
         where p.c1_id != s.c2_id and p.c1_id={} and s.c2_id not in
@@ -149,9 +156,8 @@ def getDegConnects():
         '''.format(user_id,user_id))
 
         for result in cursor:
-            for i in result[1:]:  # inner loop to remove tuple
-              print(i)
-              connections.append(i)
+            print(result)
+            connections.append(result)
             #names.append(result['name'])  # can also be accessed using result[0]
         cursor.close()
     '''
@@ -196,7 +202,16 @@ def getJobs():
     jobs.clear()
     print(f"\n\n{request.form}")
     job_id = request.form['job_id']
-
+    cursor = g.conn.execute(
+    '''
+    Select l.name, j.level, j.description
+    From job j, li_user l
+    Where j.organization_id = l.id and j.organization_id = {}
+    '''.format(job_id)
+    )
+    for result in cursor:
+        print(result)
+        jobs.append(result)
     print(f"Job id: {job_id}\n\n")
     return redirect('/')
 
@@ -216,7 +231,7 @@ def getSalaries():
     for result in cursor:
       print(result[1])
       avgSalaries.append("${:,.2f}".format(result[1]))
-      
+
     cursor.close()
 
 
@@ -224,6 +239,24 @@ def getSalaries():
     print(f"Salary id: {org_id}\n\n")
     return redirect('/')
 
+@app.route('/getPosts', methods=['POST'])
+def getPosts():
+    posts.clear()
+    print(f"\n\n{request.form}")
+    id = request.form['user_id']
+    cursor = g.conn.execute(
+    '''
+    Select l1.name, p.content, l2.name, c.content
+    From post p, li_user l1, li_user l2, comment c
+    Where p.author_id = l1.id and l1.id = {} and p.post_id = c.post_id and c.author_id = l2.id
+    '''.format(id)
+    )
+    posts.append(("Author","Post", "Commentor" , "Content"))
+    for result in cursor:
+        print(result)
+        posts.append(result)
+    print(f"Post id: {id}\n\n")
+    return redirect('/')
 
 
 @app.route('/login')

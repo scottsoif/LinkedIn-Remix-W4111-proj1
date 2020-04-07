@@ -52,7 +52,7 @@
 </form>
   <div>
     {% for n in rData %}
-    <div>{{n}}</div>
+    <div>{{n[2]}}</div>
     {% endfor %}
   </div>
 
@@ -104,6 +104,20 @@
     {% endfor %}
   </div>
 
+
+
+<table>
+  <div>
+    {% for n in rData5 %}
+  <tr>
+    <td>{{n[0]}}</td>
+    <td>{{n[1]}}</td>
+    <td>{{n[2]}}</td>
+    <td>{{n[3]}}</td>
+  </tr>
+      {% endfor %}
+  </div>
+</table>
 
 
 </body>
