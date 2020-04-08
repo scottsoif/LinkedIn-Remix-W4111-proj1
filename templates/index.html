@@ -24,20 +24,21 @@
 }
 
 table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
 }
 
 td, th {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
 }
 
 tr:nth-child(even) {
-  background-color: #dddddd;
+  background-color: #dddddd;
 }
+
   </style>
 
 
@@ -68,7 +69,7 @@ tr:nth-child(even) {
 </form>
   <div>
     {% for n in rData %}
-    <div>{{n}}</div>
+    <div>{{n[2]}}</div>
     {% endfor %}
   </div>
 
@@ -136,11 +137,29 @@ tr:nth-child(even) {
   </div>
 </table>
 
-  <div>
-    {% for n in rData5 %}
-    <div>{{n}}</div>
-    {% endfor %}
-  </div>
+<table>
+    <div>
+    {% for n in rData5[:1] %}
+    <tr>
+    <th>{{rData5[0][0]}}</th>
+    <th>{{rData5[0][1]}}</th>
+    <th>{{rData5[0][2]}}</th>
+    <th>{{rData5[0][3]}}</th>
+   </tr>
+   {% endfor %}
+  </div>
+  <div>
+    {% for n in rData5[1:] %}
+  <tr>
+    <td>{{n[0]}}</td>
+    <td>{{n[1]}}</td>
+    <td>{{n[2]}}</td>
+    <td>{{n[3]}}</td>
+  </tr>
+      {% endfor %}
+  </div>
+</table>
+
 
 <br><br>
 <h3>Avg Company Salary</h3>

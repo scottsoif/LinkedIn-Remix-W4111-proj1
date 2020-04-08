@@ -24,6 +24,7 @@ avgSalaries = []
 posts = []
 nicePeople = []
 
+
 DATABASEURI = "postgresql://sas2412:5419@35.231.103.173/proj1part2"
 
 
@@ -115,6 +116,7 @@ def index():
                 data5 = users, rData5 = posts,
                 data6 = volunteer, rData6 = nicePeople)
 
+
   return render_template("index.html", **context)
 
 
@@ -155,7 +157,7 @@ def getDegConnects():
         '''
         Select x.name target, y.name mutual, z.name as second
         from li_user x, li_user y, li_user z
-        where (x.id,y.id,z.id) =
+        where (x.id,y.id,z.id) in
         (select p.c1_id target, p.c2_id mutual, s.c2_id secondDegree
         from connection p join connection s on p.c2_id=s.c1_id
         where p.c1_id != s.c2_id and p.c1_id={} and s.c2_id not in
@@ -163,9 +165,8 @@ def getDegConnects():
         '''.format(user_id,user_id))
 
         for result in cursor:
-            for i in result[1:]:  # inner loop to remove tuple
-              print(i)
-              connections.append(i)
+            print(result)
+            connections.append(result)
             #names.append(result['name'])  # can also be accessed using result[0]
         cursor.close()
     '''
@@ -241,6 +242,7 @@ def getSalaries():
       avgSalaries.append("${:,.2f}".format(result[1]))
 
     cursor.close()
+
     print(f"Salary id: {org_id}\n\n")
     return redirect('/')
 
@@ -256,7 +258,8 @@ def getPosts():
     Where p.author_id = l1.id and l1.id = {} and p.post_id = c.post_id and c.author_id = l2.id
     '''.format(id)
     )
-    posts.append(("Author","Post", "Commentor" , "Content"))
+
+    posts.append(("Author","Post", "Commenter" , "Comment"))
     for result in cursor:
         print(result)
         posts.append(result)
@@ -281,7 +284,6 @@ def getVols():
     print(f"School id: {organization_id}\n\n")
     cursor.close()
     return redirect('/')
-
 
 @app.route('/login')
 def login():
