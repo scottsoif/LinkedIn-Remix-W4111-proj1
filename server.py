@@ -315,7 +315,7 @@ def add():
   job_id = int(job_id)
   user_id = int(user_id)
   print(f"\n*** User, job_id, job_dec, name:\t {job_id, user_id, job_desc, user_name}")
-  applied.append(f"Congrats {user_name} on applying to {job_desc[0]} - {job_desc[1]}")
+  applied.append(f"Congrats {user_name} on applying to {job_desc[0]}")
   engine.execute('INSERT INTO apply_for VALUES ({},{})'.format(user_id, job_id))
   return redirect('/#getJobs')
   
