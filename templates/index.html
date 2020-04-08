@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <style>
     body{
@@ -51,6 +52,7 @@ tr:nth-child(even) {
 </form>
 </div>
 
+<a name="getDegConnects"></a>
 <h3>Get Connections of Person by Degree</h3>
 <form method="POST" action="/getDegConnects">
   <select name="user_id">
@@ -74,7 +76,7 @@ tr:nth-child(even) {
   </div>
 
 
-
+<a name="getAlumni"></a>
 <br><br>
 <h3>Find Alumni from a School</h3>
 <form method="POST" action="/getAlumni">
@@ -92,7 +94,7 @@ tr:nth-child(even) {
     {% endfor %}
   </div>
 
-
+<a name="getJobs"></a>
 <br><br>
 <h3>Jobs Search</h3>
 <form method="POST" action="/getJobs">
@@ -104,17 +106,54 @@ tr:nth-child(even) {
   </select>
   <input type="submit" value="Submit">
 </form>
+<table>
+    {% for n in rData3[:1] %}
+    <tr>
+    <th>{{rData3[0][0]}}</th>
+    <th>{{rData3[0][1]}}</th>
+    <th>{{rData3[0][2]}}</th>
+    <th>{{rData3[0][3]}}</th>
+   </tr>
+   {% endfor %}
+  <div>
+    {% for n in rData3[1:] %}
+  <tr>
+    <td>{{n[0]}}</td>
+    <td>{{n[1]}}</td>
+    <td>{{n[2]}}</td>
+    <td>  
+      <form method="POST" action="/add">
+  <select name="job_user_id">
+    {% for name in data %}
+    <option value={{n[3]}},{{name[0]}}>{{name[1]}}</option>
+    {% endfor %}
+  </select>
+  <input type="submit" value="Apply">
+  </form>
+  <td>
+  </tr>
+      {% endfor %}
+  </div>
+</table>
+
+
 <div>
     {% for n in rData3 %}
     <div>{{n}}</div>
-<!-- <div align="right">
-<form method="POST" action="/apply">
+<div>
+
+
+
+<!-- <form method="POST" action="/apply">
 <button name="subject" type="submit">Apply</button>
-</form>
-<div> -->
+</form> -->
+</div>
     {% endfor %}
   </div>
 
+
+
+<a name="getPosts"></a>
 <h3>Get Posts Made by User (and comments on those posts hehe)</h3>
 <form method="POST" action="/getPosts">
   <select name="user_id">
@@ -124,21 +163,8 @@ tr:nth-child(even) {
   </select>
   <input type="submit" value="Submit">
 </form>
-<table>
-  <div>
-    {% for n in rData5 %}
-  <tr>
-    <td>{{n[0]}}</td>
-    <td>{{n[1]}}</td>
-    <td>{{n[2]}}</td>
-    <td>{{n[3]}}</td>
-  </tr>
-      {% endfor %}
-  </div>
-</table>
 
 <table>
-    <div>
     {% for n in rData5[:1] %}
     <tr>
     <th>{{rData5[0][0]}}</th>
@@ -147,7 +173,6 @@ tr:nth-child(even) {
     <th>{{rData5[0][3]}}</th>
    </tr>
    {% endfor %}
-  </div>
   <div>
     {% for n in rData5[1:] %}
   <tr>
@@ -160,7 +185,7 @@ tr:nth-child(even) {
   </div>
 </table>
 
-
+<a name="getSalaries"></a>
 <br><br>
 <h3>Avg Company Salary</h3>
 <form method="POST" action="/getSalaries">
@@ -177,6 +202,7 @@ tr:nth-child(even) {
     {% endfor %}
   </div>
 
+<a name="getVols"></a>
 <br><br>
 <h3>Who volunteers for that organization?</h3>
 <form method="POST" action="/getVols">

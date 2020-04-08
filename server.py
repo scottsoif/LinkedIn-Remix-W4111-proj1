@@ -123,10 +123,16 @@ def index():
 
 @app.route('/clearResults', methods=['POST'])
 def clearResults():
+  clearHelper()
+  return redirect("/")
+
+def clearHelper():
   connections.clear()
   alumni.clear()
   jobs.clear()
-  return redirect("/")
+  avgSalaries.clear()
+  posts.clear()
+  nicePeople.clear()
 
 @app.route('/goHome', methods=['POST'])
 def another():
@@ -141,7 +147,7 @@ def getDegConnects():
     user_id = request.form['user_id']
     deg = request.form['degree']
 
-    connections.clear() # empties list so no double values
+    clearHelper() # empties list so no double values
 
     if deg=="first":
         con2 = "(SELECT c2_id FROM connection WHERE c1_id={}) t".format(user_id)
@@ -182,12 +188,12 @@ def getDegConnects():
     # context = dict(rData = connections)
 
     # return render_template("result.html", **context)
-    return redirect('/')
+    return redirect('/#getDegConnects')
 
 # data 2
 @app.route('/getAlumni', methods=['POST'])
 def getAlumni():
-    alumni.clear()
+    clearHelper()
     print(f"\n\n{request.form}")
     school_id = request.form['school_id']
     cursor = g.conn.execute(
@@ -202,32 +208,42 @@ def getAlumni():
         alumni.append(result[0])
     print(f"School id: {school_id}\n\n")
     cursor.close()
-    return redirect('/')
+    return redirect('/#getAlumni')
 
 
 # data 3
 @app.route('/getJobs', methods=['POST'])
 def getJobs():
-    jobs.clear()
+    clearHelper()
     print(f"\n\n{request.form}")
     job_id = request.form['job_id']
     cursor = g.conn.execute(
     '''
-    Select l.name, j.level, j.description
+    Select l.name, j.level, j.description, job_id
     From job j, li_user l
     Where j.organization_id = l.id and j.organization_id = {}
     '''.format(job_id)
     )
+    jobs.append(("Company","Job", "Job Description" , "Apply:\n Who are you?"))
     for result in cursor:
         print(result)
         jobs.append(result)
     print(f"Job id: {job_id}\n\n")
-    return redirect('/')
+    return redirect('/#getJobs')
+
+@app.route('/add', methods=['POST'])
+def add():
+  job_user_id = request.form['job_user_id'].split(',')
+  job_id, user_id = [int(i) for i in job_user_id]
+
+  print(f"\n*** User, job_id:     {user_id}  {job_id}")
+  engine.execute('INSERT INTO apply_for VALUES ({},{})'.format(user_id, job_id))
+  return redirect('/#getJobs')
 
 
 @app.route('/getSalaries', methods=['POST'])
 def getSalaries():
-    avgSalaries.clear()
+    clearHelper()
     print(f"\n\n{request.form}")
     org_id = request.form['org_id']
     cursor = g.conn.execute(
@@ -244,11 +260,11 @@ def getSalaries():
     cursor.close()
 
     print(f"Salary id: {org_id}\n\n")
-    return redirect('/')
+    return redirect('/#getSalaries')
 
 @app.route('/getPosts', methods=['POST'])
 def getPosts():
-    posts.clear()
+    clearHelper()
     print(f"\n\n{request.form}")
     id = request.form['user_id']
     cursor = g.conn.execute(
@@ -264,11 +280,11 @@ def getPosts():
         print(result)
         posts.append(result)
     print(f"Post id: {id}\n\n")
-    return redirect('/')
+    return redirect('/#getPosts')
 
 @app.route('/getVols', methods=['POST'])
 def getVols():
-    nicePeople.clear()
+    clearHelper()
     print(f"\n\n{request.form}")
     organization_id = request.form['organization_id']
     cursor = g.conn.execute(
@@ -283,7 +299,7 @@ def getVols():
         nicePeople.append(result[0])
     print(f"School id: {organization_id}\n\n")
     cursor.close()
-    return redirect('/')
+    return redirect('/#getVols')
 
 @app.route('/login')
 def login():
