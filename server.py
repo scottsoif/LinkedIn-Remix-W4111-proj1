@@ -331,6 +331,7 @@ def getPosts():
 
 @app.route('/add', methods=['POST'])
 def add():
+  applied.clear()
   job_user_id = request.form['job_user_id'].split(',')
   job_id, user_id, *job_desc, user_name = job_user_id
   job_id = int(job_id)
