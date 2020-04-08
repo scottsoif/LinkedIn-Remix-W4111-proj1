@@ -251,7 +251,7 @@ def getPosts():
     Where p.author_id = l1.id and l1.id = {} and p.post_id = c.post_id and c.author_id = l2.id
     '''.format(id)
     )
-    posts.append(("Author","Post", "Commentor" , "Content"))
+    posts.append(("Author","Post", "Commenter" , "Comment"))
     for result in cursor:
         print(result)
         posts.append(result)
