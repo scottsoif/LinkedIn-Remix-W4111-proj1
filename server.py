@@ -262,7 +262,6 @@ def getJobs():
     print(f"\n\n{request.form}")
     job_id = request.form['job_id']
     companies[int(job_id)-11][1] = "selected"
-    print("hi there ", companies)
     cursor = g.conn.execute(
     '''
     Select l.name, j.level, j.description, job_id
