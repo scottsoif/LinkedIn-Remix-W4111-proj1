@@ -316,7 +316,13 @@ def add():
   user_id = int(user_id)
   print(f"\n*** User, job_id, job_dec, name:\t {job_id, user_id, job_desc, user_name}")
   applied.append(f"Congrats {user_name} on applying to {job_desc[0]}")
-  engine.execute('INSERT INTO apply_for VALUES ({},{})'.format(user_id, job_id))
+
+  res = engine.execute("""insert into apply_for (person_id ,job_id) 
+                    select {},{} where not exists 
+                    (select person_id, job_id from apply_for 
+                    where person_id = {} and job_id={})""".format(user_id, job_id,user_id, job_id))
+  # for i in res:
+  #   print("apply ??? ",  i)
   return redirect('/#getJobs')
   
 
