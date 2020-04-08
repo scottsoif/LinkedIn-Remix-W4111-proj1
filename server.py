@@ -203,12 +203,33 @@ def getDegConnects():
         where p.c1_id != s.c2_id and p.c1_id={} and s.c2_id not in
         (select c2_id from connection where c1_id={}))
         '''.format(user_id,user_id))
-
         for result in cursor:
             print(result[2])
             connections.append(result[2])
             #names.append(result['name'])  # can also be accessed using result[0]
         cursor.close()
+
+    elif deg=="third":
+      cursor = g.conn.execute(
+      f'''SELECT li_user.name ThirdDegree FROM person, li_user 
+      WHERE person.person_id=li_user.id and name not in 
+      (Select name From li_user, (SELECT c2_id FROM connection 
+      WHERE c1_id={user_id}) t Where li_user.id=t.c2_id) and name not in 
+      (Select z.name as second from li_user x, li_user y, li_user z 
+      where (x.id,y.id,z.id) in 
+      (select p.c1_id target, p.c2_id mutual, s.c2_id secondDegree 
+      from connection p join connection s on p.c2_id=s.c1_id 
+      where p.c1_id != s.c2_id and p.c1_id={user_id} and s.c2_id not in 
+      (select c2_id 
+      from connection where c1_id={user_id}))) and id !={user_id}''')
+
+      for result in cursor:
+          print("third ***   ", result[0])
+          connections.append(result[0])
+
+      cursor.close()
+        
+
     '''
     else if deg=="third":
         cursor = g.conn.execute("SELECT id,li_user.name FROM person, li_user WHERE person.person_id=li_user.id")
@@ -315,14 +336,16 @@ def add():
   job_id = int(job_id)
   user_id = int(user_id)
   print(f"\n*** User, job_id, job_dec, name:\t {job_id, user_id, job_desc, user_name}")
-  applied.append(f"Congrats {user_name} on applying to {job_desc[0]}")
+  # applied.append(f"Congrats {user_name} on applying to {job_desc[0]}")
 
   res = engine.execute("""insert into apply_for (person_id ,job_id) 
                     select {},{} where not exists 
                     (select person_id, job_id from apply_for 
                     where person_id = {} and job_id={})""".format(user_id, job_id,user_id, job_id))
-  # for i in res:
-  #   print("apply ??? ",  i)
+  if res.rowcount > 0:
+    applied.append(f"Congrats {user_name} on applying to {job_desc[0]}")
+  else:
+    applied.append(f"{user_name} already applied to {job_desc[0]}")
   return redirect('/#getJobs')
   
 
