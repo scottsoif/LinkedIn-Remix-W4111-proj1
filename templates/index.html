@@ -43,7 +43,7 @@ tr:nth-child(even) {
   </style>
 
 
-<body>
+<body style="background-color:lightgray;">
 <h1>Welcome To Linkedin</h1>
 <!-- Button to clear screen contents -->
 <div align="right">
@@ -52,12 +52,19 @@ tr:nth-child(even) {
 </form>
 </div>
 
-<a name="getDegConnects"></a>
+<div id="getDegConnects">
+{% if scroll %}
+<script>
+    document.getElementById('{{ scroll }}').scrollIntoView();
+    // or
+    document.location.hash = '#' + '{{ scroll }}';
+</script>
+{% endif %}
 <h3>Get Connections of Person by Degree</h3>
 <form method="POST" action="/getDegConnects">
   <select name="user_id">
     {% for name in data %}
-    <option value={{name[0]}}>{{name[1]}}</option>
+    <option value={{name[0][0]}} {{name[1]}}>{{name[0][1]}}</option>
     {% endfor %}
   </select>
   <p></p>
@@ -71,18 +78,25 @@ tr:nth-child(even) {
 </form>
   <div>
     {% for n in rData %}
-    <div>{{n[2]}}</div>
+    <div>{{n}}</div>
     {% endfor %}
   </div>
 
 
-<a name="getAlumni"></a>
+<div id="getAlumni">
+{% if scroll %}
+<script>
+    document.getElementById('{{ scroll }}').scrollIntoView();
+    // or
+    document.location.hash = '#' + '{{ scroll }}';
+</script>
+{% endif %}
 <br><br>
 <h3>Find Alumni from a School</h3>
 <form method="POST" action="/getAlumni">
   <select name="school_id">
     {% for name in data2 %}
-    <option value={{name[0]}}>{{name[1]}}</option>
+    <option value={{name[0][0]}} {{name[1]}}>{{name[0][1]}}</option>
     {% endfor %}
   </select>
   <input type="submit" value="Submit">
@@ -94,13 +108,20 @@ tr:nth-child(even) {
     {% endfor %}
   </div>
 
-<a name="getJobs"></a>
+<div id="getJobs">
+{% if scroll %}
+<script>
+    document.getElementById('{{ scroll }}').scrollIntoView();
+    // or
+    document.location.hash = '#' + '{{ scroll }}';
+</script>
+{% endif %}
 <br><br>
 <h3>Jobs Search</h3>
 <form method="POST" action="/getJobs">
   <select name="job_id">
     {% for name in data3 %}
-    <option value={{name[0]}}>{{name[1]}}</option>
+    <option value={{name[0][0]}} {{name[1]}}>{{name[0][1]}}</option>
     </form>
     {% endfor %}
   </select>
@@ -125,7 +146,7 @@ tr:nth-child(even) {
       <form method="POST" action="/add">
   <select name="job_user_id">
     {% for name in data %}
-    <option value={{n[3]}},{{name[0]}}>{{name[1]}}</option>
+    <option value={{n[3]}},{{name[0][0]}},{{n[0]}},{{n[1]}},{{name[0][1]}}>{{name[0][1]}}</option>
     {% endfor %}
   </select>
   <input type="submit" value="Apply">
@@ -138,7 +159,7 @@ tr:nth-child(even) {
 
 
 <div>
-    {% for n in rData3 %}
+    {% for n in rData7 %}
     <div>{{n}}</div>
 <div>
 
@@ -153,12 +174,19 @@ tr:nth-child(even) {
 
 
 
-<a name="getPosts"></a>
+<div id="getPosts">
+{% if scroll %}
+<script>
+    document.getElementById('{{ scroll }}').scrollIntoView();
+    // or
+    document.location.hash = '#' + '{{ scroll }}';
+</script>
+{% endif %}
 <h3>Get Posts Made by User (and comments on those posts hehe)</h3>
 <form method="POST" action="/getPosts">
   <select name="user_id">
     {% for name in data5 %}
-    <option value={{name[0]}}>{{name[1]}}</option>
+    <option value={{name[0][0]}} {{name[1]}}>{{name[0][1]}}</option>
     {% endfor %}
   </select>
   <input type="submit" value="Submit">
@@ -185,13 +213,20 @@ tr:nth-child(even) {
   </div>
 </table>
 
-<a name="getSalaries"></a>
+<div id="getSalaries">
+{% if scroll %}
+<script>
+    document.getElementById('{{ scroll }}').scrollIntoView();
+    // or
+    document.location.hash = '#' + '{{ scroll }}';
+</script>
+{% endif %}
 <br><br>
 <h3>Avg Company Salary</h3>
 <form method="POST" action="/getSalaries">
   <select name="org_id">
-    {% for name in data3 %}
-    <option value={{name[0]}}>{{name[1]}}</option>
+    {% for name in data4 %}
+    <option value={{name[0][0]}} {{name[1]}}>{{name[0][1]}}</option>
     {% endfor %}
   </select>
   <input type="submit" value="Submit">
@@ -202,13 +237,20 @@ tr:nth-child(even) {
     {% endfor %}
   </div>
 
-<a name="getVols"></a>
+<div id="getVols">
+{% if scroll %}
+<script>
+    document.getElementById('{{ scroll }}').scrollIntoView();
+    // or
+    document.location.hash = '#' + '{{ scroll }}';
+</script>
+{% endif %}
 <br><br>
 <h3>Who volunteers for that organization?</h3>
 <form method="POST" action="/getVols">
   <select name="organization_id">
     {% for name in data6 %}
-    <option value={{name[0]}}>{{name[1]}}</option>
+    <option value={{name[0][0]}} {{name[1]}}>{{name[0][1]}}</option>
     {% endfor %}
   </select>
   <input type="submit" value="Submit">

@@ -23,6 +23,15 @@ jobs = []
 avgSalaries = []
 posts = []
 nicePeople = []
+applied = []
+
+# drop downs
+names = []
+schools = []
+companies = []
+companies2 = []
+users = []
+volunteer = []
 
 
 DATABASEURI = "postgresql://sas2412:5419@35.231.103.173/proj1part2"
@@ -77,44 +86,51 @@ def teardown_request(exception):
 def index():
 
   print(request.args)
+  names.clear()
+  schools.clear()
+  companies.clear()
+  users.clear()
+  volunteer.clear()
 
   cursor = g.conn.execute("SELECT id,li_user.name FROM person, li_user WHERE person.person_id=li_user.id")
-  names = []
+  # names = []
   for result in cursor:
-  	names.append(result)
+  	names.append([result,""])
   cursor.close()
 
   cursor = g.conn.execute("select id, name from school, li_user where school_id=id")
-  schools = []
+  # schools = []
   for result in cursor:
-    schools.append(result)
+    schools.append([result,""])
     #names.append(result['name'])  # can also be accessed using result[0]
   cursor.close()
 
   cursor = g.conn.execute("SELECT id,li_user.name FROM organization, li_user WHERE organization.organization_id=li_user.id")
-  companies = []
+  # companies = []
   for result in cursor:
-  	companies.append(result)
+  	companies.append([result,""])
+  cursor.close()
+
+  cursor = g.conn.execute("SELECT id,li_user.name FROM organization, li_user WHERE organization.organization_id=li_user.id")
+   # companies2222222222 = []
+  for result in cursor:
+    companies2.append([result,""])
   cursor.close()
 
   cursor = g.conn.execute("SELECT id, name FROM li_user")
-  users = []
+  # users = []
   for result in cursor:
-      users.append(result)
+      users.append([result,""])
   cursor.close()
 
-  cursor = g.conn.execute("SELECT id,li_user.name FROM volunteer, li_user WHERE volunteer.organization_id=li_user.id group by id, name")
-  volunteer = []
+  cursor = g.conn.execute("SELECT id,li_user.name FROM volunteer, li_user WHERE volunteer.organization_id=li_user.id group by id, name order by id")
+  # volunteer = []
   for result in cursor:
-      volunteer.append(result)
+      volunteer.append([result,""])
   cursor.close()
 
-  context = dict(data = names, rData = connections,
-                data2=schools, rData2 = alumni,
-                data3 = companies, rData3 = jobs,
-                rData4 = avgSalaries,
-                data5 = users, rData5 = posts,
-                data6 = volunteer, rData6 = nicePeople)
+  context = dict(data = names, rData = connections, data2=schools, rData2 = alumni,  data3 = companies, rData3 = jobs,
+                data4=companies2, rData4 = avgSalaries, data5 = users, rData5 = posts, data6 = volunteer, rData6 = nicePeople, rData7=applied)
 
 
   return render_template("index.html", **context)
@@ -133,6 +149,21 @@ def clearHelper():
   avgSalaries.clear()
   posts.clear()
   nicePeople.clear()
+  applied.clear()
+
+def resetDropDowns():   # removes the past user from top of form
+  for idx, val in enumerate(names):
+    names[idx][1] = ""
+  for idx, val in enumerate(schools):
+    schools[idx][1] = ""
+  for idx, val in enumerate(companies):
+    companies[idx][1] = ""
+  for idx, val in enumerate(companies2):
+    companies2[idx][1] = ""
+  for idx, val in enumerate(users):
+    users[idx][1] = ""
+  for idx, val in enumerate(volunteer):
+    volunteer[idx][1] = ""
 
 @app.route('/goHome', methods=['POST'])
 def another():
@@ -142,11 +173,14 @@ def another():
 # data
 @app.route('/getDegConnects', methods=['POST'])
 def getDegConnects():
+    resetDropDowns()
     print(f"\n\n{request.form}")
     # gets user and def from post request
     user_id = request.form['user_id']
     deg = request.form['degree']
-
+    names[int(user_id)-1][1] = "selected"
+    
+    
     clearHelper() # empties list so no double values
 
     if deg=="first":
@@ -157,7 +191,7 @@ def getDegConnects():
             print(result[0])
             connections.append(result[0])
         cursor.close()
-
+    
     elif deg=="second":
         cursor = g.conn.execute(
         '''
@@ -171,8 +205,8 @@ def getDegConnects():
         '''.format(user_id,user_id))
 
         for result in cursor:
-            print(result)
-            connections.append(result)
+            print(result[2])
+            connections.append(result[2])
             #names.append(result['name'])  # can also be accessed using result[0]
         cursor.close()
     '''
@@ -183,19 +217,24 @@ def getDegConnects():
             #names.append(result['name'])  # can also be accessed using result[0]
         cursor.close()
     '''
+    print("looking for ** ", connections)
     print(f"\nUser: {user_id}\nDegrees you want:  {deg}\n\n")
     if len(connections)==0: connections.append("No results found :{")
-    # context = dict(rData = connections)
 
-    # return render_template("result.html", **context)
-    return redirect('/#getDegConnects')
+    # return redirect('/#getDegConnects')
+    context = dict(data = names, rData = connections, data2=schools, rData2 = alumni,  data3 = companies, rData3 = jobs,
+                data4=companies2, rData4 = avgSalaries, data5 = users, rData5 = posts, data6 = volunteer, rData6 = nicePeople, rData7=applied)
+
+    return render_template("index.html",scroll='getDegConnects', **context)
 
 # data 2
 @app.route('/getAlumni', methods=['POST'])
 def getAlumni():
     clearHelper()
+    resetDropDowns()
     print(f"\n\n{request.form}")
     school_id = request.form['school_id']
+    schools[int(school_id)-21][1] = "selected"
     cursor = g.conn.execute(
     '''
     Select name
@@ -208,15 +247,22 @@ def getAlumni():
         alumni.append(result[0])
     print(f"School id: {school_id}\n\n")
     cursor.close()
-    return redirect('/#getAlumni')
+    # return redirect('/#getAlumni')
+    context = dict(data = names, rData = connections, data2=schools, rData2 = alumni,  data3 = companies, rData3 = jobs,
+                data4=companies2, rData4 = avgSalaries, data5 = users, rData5 = posts, data6 = volunteer, rData6 = nicePeople, rData7=applied)
+
+    return render_template("index.html",scroll='getAlumni', **context)
 
 
 # data 3
 @app.route('/getJobs', methods=['POST'])
 def getJobs():
     clearHelper()
+    resetDropDowns()
     print(f"\n\n{request.form}")
     job_id = request.form['job_id']
+    companies[int(job_id)-11][1] = "selected"
+    print("hi there ", companies)
     cursor = g.conn.execute(
     '''
     Select l.name, j.level, j.description, job_id
@@ -229,23 +275,60 @@ def getJobs():
         print(result)
         jobs.append(result)
     print(f"Job id: {job_id}\n\n")
-    return redirect('/#getJobs')
+    # return redirect('/#getJobs')
+    context = dict(data = names, rData = connections, data2=schools, rData2 = alumni,  data3 = companies, rData3 = jobs,
+                data4=companies2, rData4 = avgSalaries, data5 = users, rData5 = posts, data6 = volunteer, rData6 = nicePeople, rData7=applied)
+
+    return render_template("index.html",scroll='getJobs', **context)
+
+
+@app.route('/getPosts', methods=['POST'])
+def getPosts():
+    clearHelper()
+    resetDropDowns()
+    print(f"\n\n{request.form}")
+    id = request.form['user_id']
+    users[int(id)-1][1] = "selected"
+    cursor = g.conn.execute(
+    '''
+    Select l1.name, p.content, l2.name, c.content
+    From post p, li_user l1, li_user l2, comment c
+    Where p.author_id = l1.id and l1.id = {} and p.post_id = c.post_id and c.author_id = l2.id
+    '''.format(id)
+    )
+
+    posts.append(("Author","Post", "Commenter" , "Comment"))
+    for result in cursor:
+        print(result)
+        posts.append(result)
+    print(f"Post id: {id}\n\n")
+    # return redirect('/#getPosts')
+    context = dict(data = names, rData = connections, data2=schools, rData2 = alumni,  data3 = companies, rData3 = jobs,
+                data4=companies2, rData4 = avgSalaries, data5 = users, rData5 = posts, data6 = volunteer, rData6 = nicePeople, rData7=applied)
+    # context['_anchor'] = 'getVols'
+    return render_template("index.html",scroll = 'getPosts', **context) 
+
 
 @app.route('/add', methods=['POST'])
 def add():
   job_user_id = request.form['job_user_id'].split(',')
-  job_id, user_id = [int(i) for i in job_user_id]
-
-  print(f"\n*** User, job_id:     {user_id}  {job_id}")
+  job_id, user_id, *job_desc, user_name = job_user_id
+  job_id = int(job_id)
+  user_id = int(user_id)
+  print(f"\n*** User, job_id, job_dec, name:\t {job_id, user_id, job_desc, user_name}")
+  applied.append(f"Congrats {user_name} on applying to {job_desc[0]} - {job_desc[1]}")
   engine.execute('INSERT INTO apply_for VALUES ({},{})'.format(user_id, job_id))
   return redirect('/#getJobs')
+  
 
 
 @app.route('/getSalaries', methods=['POST'])
 def getSalaries():
     clearHelper()
+    resetDropDowns()
     print(f"\n\n{request.form}")
     org_id = request.form['org_id']
+    companies2[int(org_id)-11][1] = "selected"
     cursor = g.conn.execute(
     '''
     select l.name, avg(salary)
@@ -260,33 +343,19 @@ def getSalaries():
     cursor.close()
 
     print(f"Salary id: {org_id}\n\n")
-    return redirect('/#getSalaries')
+    # return redirect('/#getSalaries')
+    context = dict(data = names, rData = connections, data2=schools, rData2 = alumni,  data3 = companies, rData3 = jobs,
+                data4=companies2, rData4 = avgSalaries, data5 = users, rData5 = posts, data6 = volunteer, rData6 = nicePeople, rData7=applied)
 
-@app.route('/getPosts', methods=['POST'])
-def getPosts():
-    clearHelper()
-    print(f"\n\n{request.form}")
-    id = request.form['user_id']
-    cursor = g.conn.execute(
-    '''
-    Select l1.name, p.content, l2.name, c.content
-    From post p, li_user l1, li_user l2, comment c
-    Where p.author_id = l1.id and l1.id = {} and p.post_id = c.post_id and c.author_id = l2.id
-    '''.format(id)
-    )
-
-    posts.append(("Author","Post", "Commenter" , "Comment"))
-    for result in cursor:
-        print(result)
-        posts.append(result)
-    print(f"Post id: {id}\n\n")
-    return redirect('/#getPosts')
+    return render_template("index.html",scroll='getSalaries', **context) 
 
 @app.route('/getVols', methods=['POST'])
 def getVols():
     clearHelper()
+    resetDropDowns()
     print(f"\n\n{request.form}")
     organization_id = request.form['organization_id']
+    volunteer[int(organization_id)-18][1] = "selected"
     cursor = g.conn.execute(
     '''
     Select name
@@ -299,7 +368,11 @@ def getVols():
         nicePeople.append(result[0])
     print(f"School id: {organization_id}\n\n")
     cursor.close()
-    return redirect('/#getVols')
+    # return redirect('/#getVols')
+    context = dict(data = names, rData = connections, data2=schools, rData2 = alumni,  data3 = companies, rData3 = jobs,
+                data4=companies2, rData4 = avgSalaries, data5 = users, rData5 = posts, data6 = volunteer, rData6 = nicePeople, rData7=applied)
+
+    return render_template("index.html", scroll='getVols', **context) 
 
 @app.route('/login')
 def login():
