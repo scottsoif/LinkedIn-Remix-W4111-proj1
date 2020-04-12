@@ -68,13 +68,15 @@ tr:nth-child(even) {
     {% endfor %}
   </select>
   <p></p>
-  <input type="radio" id="first" name="degree" value="first">
-  <label for="first">1st Degree Connection</label><br>
-  <input type="radio" id="second" name="degree" value="second">
+  {% if radData %}
+  <input type="radio" id="first" name="degree" value="first" {{radData[0]}}>
+  <label for="first">1st Degree Connection  {{radData[0]}}</label><br>
+  <input type="radio" id="second" name="degree" value="second" {{radData[1]}}>
   <label for="second">2nd Degree Connection</label><br>
-  <input type="radio" id="third" name="degree" value="third">
+  <input type="radio" id="third" name="degree" value="third" {{radData[2]}}>
   <label for="third">3rd Degree Connection</label>
   <input type="submit" value="Submit" class="button">
+  {% endif %}
 </form>
   <div>
     {% for n in rData %}

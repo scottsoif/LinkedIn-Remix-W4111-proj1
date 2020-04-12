@@ -32,6 +32,7 @@ companies = []
 companies2 = []
 users = []
 volunteer = []
+radio_but = ["checked","",""]
 
 
 DATABASEURI = "postgresql://sas2412:5419@35.231.103.173/proj1part2"
@@ -129,7 +130,7 @@ def index():
       volunteer.append([result,""])
   cursor.close()
 
-  context = dict(data = names, rData = connections, data2=schools, rData2 = alumni,  data3 = companies, rData3 = jobs,
+  context = dict(data = names, radData=radio_but, rData = connections, data2=schools, rData2 = alumni,  data3 = companies, rData3 = jobs,
                 data4=companies2, rData4 = avgSalaries, data5 = users, rData5 = posts, data6 = volunteer, rData6 = nicePeople, rData7=applied)
 
 
@@ -151,6 +152,7 @@ def clearHelper():
   nicePeople.clear()
   applied.clear()
 
+
 def resetDropDowns():   # removes the past user from top of form
   for idx, val in enumerate(names):
     names[idx][1] = ""
@@ -164,6 +166,7 @@ def resetDropDowns():   # removes the past user from top of form
     users[idx][1] = ""
   for idx, val in enumerate(volunteer):
     volunteer[idx][1] = ""
+  radio_but = ["checked","",""]
 
 @app.route('/goHome', methods=['POST'])
 def another():
@@ -184,6 +187,7 @@ def getDegConnects():
     clearHelper() # empties list so no double values
 
     if deg=="first":
+        radio_but = ["checked","",""]
         con2 = "(SELECT c2_id FROM connection WHERE c1_id={}) t".format(user_id)
         con2names = "Select name From li_user, {} Where li_user.id=t.c2_id".format(con2)
         cursor = g.conn.execute(con2names)
@@ -193,6 +197,7 @@ def getDegConnects():
         cursor.close()
     
     elif deg=="second":
+        radio_but = ["","checked",""]
         cursor = g.conn.execute(
         '''
         Select x.name target, y.name mutual, z.name as second
@@ -210,6 +215,7 @@ def getDegConnects():
         cursor.close()
 
     elif deg=="third":
+      radio_but = ["","","checked"]
       cursor = g.conn.execute(
       f'''SELECT li_user.name ThirdDegree FROM person, li_user 
       WHERE person.person_id=li_user.id and name not in 
@@ -243,7 +249,7 @@ def getDegConnects():
     if len(connections)==0: connections.append("No results found :{")
 
     # return redirect('/#getDegConnects')
-    context = dict(data = names, rData = connections, data2=schools, rData2 = alumni,  data3 = companies, rData3 = jobs,
+    context = dict(data = names, radData=radio_but, rData = connections, data2=schools, rData2 = alumni,  data3 = companies, rData3 = jobs,
                 data4=companies2, rData4 = avgSalaries, data5 = users, rData5 = posts, data6 = volunteer, rData6 = nicePeople, rData7=applied)
 
     return render_template("index.html",scroll='getDegConnects', **context)
@@ -269,7 +275,7 @@ def getAlumni():
     print(f"School id: {school_id}\n\n")
     cursor.close()
     # return redirect('/#getAlumni')
-    context = dict(data = names, rData = connections, data2=schools, rData2 = alumni,  data3 = companies, rData3 = jobs,
+    context = dict(data = names, radData=radio_but, rData = connections, data2=schools, rData2 = alumni,  data3 = companies, rData3 = jobs,
                 data4=companies2, rData4 = avgSalaries, data5 = users, rData5 = posts, data6 = volunteer, rData6 = nicePeople, rData7=applied)
 
     return render_template("index.html",scroll='getAlumni', **context)
@@ -296,7 +302,7 @@ def getJobs():
         jobs.append(result)
     print(f"Job id: {job_id}\n\n")
     # return redirect('/#getJobs')
-    context = dict(data = names, rData = connections, data2=schools, rData2 = alumni,  data3 = companies, rData3 = jobs,
+    context = dict(data = names, radData=radio_but, rData = connections, data2=schools, rData2 = alumni,  data3 = companies, rData3 = jobs,
                 data4=companies2, rData4 = avgSalaries, data5 = users, rData5 = posts, data6 = volunteer, rData6 = nicePeople, rData7=applied)
 
     return render_template("index.html",scroll='getJobs', **context)
@@ -323,7 +329,7 @@ def getPosts():
         posts.append(result)
     print(f"Post id: {id}\n\n")
     # return redirect('/#getPosts')
-    context = dict(data = names, rData = connections, data2=schools, rData2 = alumni,  data3 = companies, rData3 = jobs,
+    context = dict(data = names, radData=radio_but, rData = connections, data2=schools, rData2 = alumni,  data3 = companies, rData3 = jobs,
                 data4=companies2, rData4 = avgSalaries, data5 = users, rData5 = posts, data6 = volunteer, rData6 = nicePeople, rData7=applied)
     # context['_anchor'] = 'getVols'
     return render_template("index.html",scroll = 'getPosts', **context) 
@@ -373,7 +379,7 @@ def getSalaries():
 
     print(f"Salary id: {org_id}\n\n")
     # return redirect('/#getSalaries')
-    context = dict(data = names, rData = connections, data2=schools, rData2 = alumni,  data3 = companies, rData3 = jobs,
+    context = dict(data = names, radData=radio_but, rData = connections, data2=schools, rData2 = alumni,  data3 = companies, rData3 = jobs,
                 data4=companies2, rData4 = avgSalaries, data5 = users, rData5 = posts, data6 = volunteer, rData6 = nicePeople, rData7=applied)
 
     return render_template("index.html",scroll='getSalaries', **context) 
@@ -398,7 +404,7 @@ def getVols():
     print(f"School id: {organization_id}\n\n")
     cursor.close()
     # return redirect('/#getVols')
-    context = dict(data = names, rData = connections, data2=schools, rData2 = alumni,  data3 = companies, rData3 = jobs,
+    context = dict(data = names, radData=radio_but, rData = connections, data2=schools, rData2 = alumni,  data3 = companies, rData3 = jobs,
                 data4=companies2, rData4 = avgSalaries, data5 = users, rData5 = posts, data6 = volunteer, rData6 = nicePeople, rData7=applied)
 
     return render_template("index.html", scroll='getVols', **context) 
