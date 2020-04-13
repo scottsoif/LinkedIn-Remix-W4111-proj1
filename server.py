@@ -90,6 +90,7 @@ def index():
   names.clear()
   schools.clear()
   companies.clear()
+  companies2.clear()
   users.clear()
   volunteer.clear()
 
