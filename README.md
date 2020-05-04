@@ -3,7 +3,7 @@ Scott Soifer (sas2412) and Asher Willner (ajw2210)
 Project Part 3
 4/8/20
 
-SQL Account: sas2412
+Postgres SQL Account: sas2412
 
 URL: 35.229.126.221:8111
 
