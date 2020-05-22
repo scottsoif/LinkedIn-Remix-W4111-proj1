@@ -5,7 +5,7 @@ Project Part 3
 
 Postgres SQL Account: sas2412
 
-URL: 35.229.126.221:8111
+URL: 35.229.126.221:8111  // Server currently off. Contact sas2412@columbia.edu for demo
 
 - Our web application accomplishes everything set forth in our proposal, and we added a couple of features as well. Our program allows the user to: 
 	- see people's 1st, 2nd, and 3rd degree connections. 
